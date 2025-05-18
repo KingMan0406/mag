@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Каталог товаров - Онлайн магазин</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+  <style>
+    .swiper-slide img { width: 100%; height: auto; }
+    .menu-container { position: relative; }
+    .burger { font-size: 24px; cursor: pointer; padding: 10px; }
+    .menu { display: none; flex-direction: column; position: absolute; top: 40px; right: 10px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); padding: 10px; }
+    .menu.active { display: flex; }
+    .menu a { padding: 10px; text-decoration: none; color: #333; }
+    .menu a:hover { background: #f0f0f0; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+  <header class="bg-white shadow">
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-gray-800">Онлайн магазин</h1>
+      <div class="menu-container">
+        <div class="burger" onclick="toggleMenu()">☰</div>
+        <div id="menu" class="menu">
+          <a href="#">Главная</a>
+          <a href="#">Тарифы</a>
+          <a href="#">Продукты</a>
+          <a href="#">Услуги</a>
+          <a href="#">Контакты</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-6xl mx-auto p-4">
+    <h2 class="text-4xl font-bold text-center mb-6">Каталог товаров</h2>
+    <div class="flex flex-wrap gap-2 justify-center mb-6">
+      <input class="search border p-2 rounded w-60" placeholder="Поиск...">
+      <button class="sort bg-blue-600 text-white px-4 py-2 rounded" data-sort="name">Сорт. Название 🔽</button>
+      <button class="sort bg-blue-600 text-white px-4 py-2 rounded" data-sort="category">Сорт. Категория 🔽</button>
+      <button class="sort bg-blue-600 text-white px-4 py-2 rounded" data-sort="price">Сорт. Цена 🔽</button>
+      <select id="categoryFilter" class="border p-2 rounded">
+        <option value="">Все категории</option>
+      </select>
+      <input type="number" id="minPrice" placeholder="Мин. цена" class="border p-2 rounded w-32">
+      <input type="number" id="maxPrice" placeholder="Макс. цена" class="border p-2 rounded w-32">
+      <button id="applyFilters" class="bg-green-600 text-white px-4 py-2 rounded">Применить фильтры</button>
+      <button id="resetFilters" class="bg-red-600 text-white px-4 py-2 rounded">Сбросить</button>
+    </div>
+    <div class="swiper mb-8">
+      <div class="swiper-wrapper" id="swiper-wrapper"></div>
+      <div class="swiper-pagination"></div>
+    </div>
+    <div id="product-list">
+      <ul class="list grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></ul>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <script>
+    AOS.init();
+
+    function toggleMenu() {
+      document.getElementById("menu").classList.toggle("active");
+    }
+
+    fetch('products.json')
+      .then(response => response.json())
+      .then(productsData => {
+        const listEl = document.querySelector('.list');
+        const swiperWrapper = document.getElementById('swiper-wrapper');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const minPriceEl = document.getElementById('minPrice');
+        const maxPriceEl = document.getElementById('maxPrice');
+        const applyFiltersBtn = document.getElementById('applyFilters');
+        const resetFiltersBtn = document.getElementById('resetFilters');
+        const searchInput = document.querySelector('.search');
+
+        const aosAnimations = ['zoom-in', 'flip-left', 'fade-up', 'fade-right', 'zoom-in-left', 'flip-up'];
+
+        // Обработка параметра поиска из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('search');
+        if (searchQuery) {
+          searchInput.value = searchQuery;
+        }
+
+        productsData.forEach((item, index) => {
+          if (!item.id) {
+            console.warn(`Товар "${item.name}" не имеет id`);
+            return;
+          }
+          const li = document.createElement('li');
+          li.setAttribute('data-aos', aosAnimations[index % aosAnimations.length]);
+          li.className = "bg-white p-4 rounded shadow hover:shadow-lg transition duration-200";
+          li.innerHTML = `
+            <img src="${item.image}" alt="${item.name}" class="w-full h-40 object-cover rounded mb-3">
+            <h3 class="name text-xl font-semibold mb-1">${item.name}</h3>
+            <p class="category text-sm text-gray-500 mb-1">${item.category}</p>
+            <p class="price text-lg font-bold text-green-600">${item.price} сом</p>
+            <div class="flex gap-2 mt-3">
+              <button onclick="window.location.href='checkout.html?id=${item.id}'" 
+                      class="w-1/3 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
+                Купить
+              </button>
+              <button onclick="window.location.href='product.html?id=${item.id}'" 
+                      class="w-1/3 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition">
+                Подробнее
+              </button>
+              <button onclick="window.location.href='details.html?id=${item.id}'" 
+                      class="w-1/3 bg-teal-600 text-white py-2 rounded hover:bg-teal-700 transition">
+                Подробнее 2
+              </button>
+            </div>
+          `;
+          listEl.appendChild(li);
+
+          const slide = document.createElement('div');
+          slide.className = "swiper-slide";
+          slide.innerHTML = `
+            <img src="${item.image}" alt="${item.name}">
+            <p class="text-center mt-2 font-medium">${item.name}</p>
+          `;
+          swiperWrapper.appendChild(slide);
+        });
+
+        const categories = [...new Set(productsData.map(p => p.category))];
+        categories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat;
+          option.textContent = cat;
+          categoryFilter.appendChild(option);
+        });
+
+        const options = { valueNames: ['name', 'category', 'price'] };
+        const productList = new List('product-list', options);
+
+        // Фильтрация по поиску из URL
+        if (searchQuery) {
+          productList.filter(item => {
+            const name = item.values().name.toLowerCase();
+            return name.includes(searchQuery.toLowerCase());
+          });
+        }
+
+        const swiper = new Swiper('.swiper', {
+          slidesPerView: 3,
+          spaceBetween: 15,
+          pagination: { el: '.swiper-pagination', clickable: true },
+          autoplay: { delay: 3000 },
+          breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
+        });
+
+        let sortDirections = { name: 'asc', category: 'asc', price: 'asc' };
+        document.querySelectorAll('.sort').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const sortField = btn.getAttribute('data-sort');
+            const direction = sortDirections[sortField] === 'asc' ? 'desc' : 'asc';
+            productList.sort(sortField, { order: direction });
+            sortDirections[sortField] = direction;
+            btn.textContent = `Сорт. ${sortField === 'name' ? 'Название' : sortField === 'category' ? 'Категория' : 'Цена'} ${direction === 'asc' ? '🔼' : '🔽'}`;
+          });
+        });
+
+        applyFiltersBtn.addEventListener('click', () => {
+          const selectedCategory = categoryFilter.value;
+          const minPrice = parseFloat(minPriceEl.value) || 0;
+          const maxPrice = parseFloat(maxPriceEl.value) || Infinity;
+          const searchValue = searchInput.value.toLowerCase();
+
+          productList.filter(item => {
+            const category = item.values().category;
+            const price = parseFloat(item.values().price);
+            const name = item.values().name.toLowerCase();
+            const matchCategory = selectedCategory ? category === selectedCategory : true;
+            const matchPrice = price >= minPrice && price <= maxPrice;
+            const matchSearch = searchValue ? name.includes(searchValue) : true;
+            return matchCategory && matchPrice && matchSearch;
+          });
+        });
+
+        resetFiltersBtn.addEventListener('click', () => {
+          categoryFilter.value = '';
+          minPriceEl.value = '';
+          maxPriceEl.value = '';
+          searchInput.value = '';
+          productList.filter();
+        });
+
+        AOS.refresh();
+      })
+      .catch(error => console.error('Ошибка загрузки JSON:', error));
+  </script>
+</body>
+</html>

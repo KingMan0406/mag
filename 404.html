@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Страница не найдена</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #1a1a1a, #0a2f1e);
+      overflow-x: hidden;
+      min-height: 200vh; /* Длинная страница для прокрутки */
+    }
+    .forest-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.3;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 80 Q20 60 30 80 T50 80 T70 80 T90 80" fill="none" stroke="#0a2f1e" stroke-width="5"/><path d="M15 85 Q25 65 35 85 T55 85 T75 85 T95 85" fill="none" stroke="#0a2f1e" stroke-width="5"/></svg>') repeat;
+      z-index: -1;
+    }
+    .egg {
+      width: 200px;
+      height: 300px;
+      background: radial-gradient(circle at 50% 30%, #ff3333, #cc0000);
+      border-radius: 50% / 60%;
+      position: relative;
+      margin: 0 auto;
+      transition: transform 0.5s ease;
+    }
+    .egg.cracked::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 10 L40 30 Q45 50 60 70 L55 90" fill="none" stroke="#000" stroke-width="5"/><path d="M50 20 L60 40 Q55 60 40 80" fill="none" stroke="#000" stroke-width="5"/></svg>') no-repeat;
+      background-size: cover;
+    }
+    .dragon {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+    .dragon.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .dragon::before {
+      content: '';
+      display: block;
+      width: 250px;
+      height: 250px;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M30 80 Q50 50 70 80" fill="none" stroke="#00cc00" stroke-width="5"/><circle cx="40" cy="30" r="5" fill="#00cc00"/><circle cx="60" cy="30" r="5" fill="#00cc00"/></svg>') no-repeat;
+      background-size: contain;
+    }
+  </style>
+</head>
+<body class="text-white">
+  <div class="forest-bg"></div>
+  <header class="bg-black bg-opacity-80 shadow">
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center">
+      <h1 class="text-3xl font-bold">Онлайн магазин</h1>
+      <a href="index.html" class="text-blue-400 hover:underline">Вернуться в каталог</a>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-12 text-center">
+    <h2 class="text-5xl font-bold mb-4">404 - Страница потерялась в темном лесу!</h2>
+    <p class="text-lg mb-6">Кажется, вы забрели в чащу, где даже драконы не находят пути. Прокрутите вниз, чтобы увидеть, как вылупляется дракон!</p>
+    
+    <div class="my-12">
+      <input type="text" id="search" placeholder="Попробуйте поиск..." 
+             class="w-64 p-2 rounded-l border border-gray-600 bg-gray-800 text-white focus:outline-none">
+      <button onclick="searchRedirect()" 
+              class="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 transition">
+        Найти
+      </button>
+    </div>
+
+    <div id="egg" class="egg mt-24"></div>
+    <div id="dragon" class="dragon mt-12">
+      <p class="text-2xl font-semibold">Дракон вылупился! Но страница все еще не найдена...</p>
+      <a href="index.html" class="mt-4 inline-block bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition">
+        Вернуться домой
+      </a>
+    </div>
+  </main>
+
+  <script>
+    const egg = document.getElementById('egg');
+    const dragon = document.getElementById('dragon');
+
+    window.addEventListener('scroll', () => {
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+
+      // Трещины на яйце появляются при прокрутке на 50% высоты окна
+      if (scrollPosition > windowHeight * 0.5) {
+        egg.classList.add('cracked');
+        egg.style.transform = 'scale(1.1)';
+      }
+
+      // Дракон появляется при прокрутке на 100% высоты окна
+      if (scrollPosition > windowHEIGHT * 1.0) {
+        dragon.classList.add('visible');
+      }
+    });
+
+    function searchRedirect() {
+      const query = document.getElementById('search').value;
+      if (query) {
+        // Перенаправление на index.html с параметром поиска
+        window.location.href = `index.html?search=${encodeURIComponent(query)}`;
+      }
+    }
+  </script>
+</body>
+</html>
